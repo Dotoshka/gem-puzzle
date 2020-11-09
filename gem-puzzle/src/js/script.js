@@ -28,7 +28,8 @@ class Game {
   constructor(size) {
     this.size = size;
     this.clicks = 0;
-    this.gameTime = 0;
+    this.time = 0;
+    this.isStart = false;
     // this.field = createField();
     // this.chips = createChips();
     this.emptyCoords = { x: this.size - 1, y: this.size - 1 };
@@ -39,13 +40,24 @@ class Game {
 
   init() {
     // Temporary
+    this.timer = document.createElement('div');
+    document.body.prepend(this.timer);
+    this.timer.innerText = `Time ${this.time}s`;
     this.moves = document.createElement('div');
     document.body.prepend(this.moves);
     this.moves.innerText = `Moves ${this.clicks}`;
+    const resumeBtn = document.createElement('button');
+    resumeBtn.innerText = 'Resume game';
+    document.body.prepend(resumeBtn);
+    resumeBtn.addEventListener('click', this.resumeGame);
+    const pauseBtn = document.createElement('button');
+    pauseBtn.innerText = 'Pause game';
+    document.body.prepend(pauseBtn);
+    pauseBtn.addEventListener('click', this.pauseGame);
     const newGameBtn = document.createElement('button');
     newGameBtn.innerText = 'New game';
     document.body.prepend(newGameBtn);
-    newGameBtn.addEventListener('click', this.createNewGame);
+    newGameBtn.addEventListener('click', this.startNewGame);
     // ------
     this.field = document.createElement('div');
     this.field.classList.add('field');
@@ -104,7 +116,9 @@ class Game {
     return arr;
   };
 
-  createNewGame = () => {
+  startNewGame = () => {
+    this.stopGame();
+    this.resumeGame();
     while (this.field.firstChild) {
       this.field.removeChild(this.field.firstChild);
     }
@@ -115,6 +129,27 @@ class Game {
     this.clicks = 0;
     this.gameTime = 0;
     this.moves.innerText = `Moves ${this.clicks}`;
+  }
+
+  pauseGame = () => {
+    this.isStart = false;
+    clearInterval(this.interval);
+  }
+
+  resumeGame = () => {
+    if (!this.isStart) {
+      this.isStart = true;
+      this.interval = setInterval(() => {
+        this.time++;
+        this.timer.innerText = `Time ${this.time}s`;
+      }, 1000);
+    }
+  }
+
+  stopGame = () => {
+    this.pauseGame();
+    this.time = 0;
+    this.timer.innerText = `Time ${this.time}s`;
   }
 
   move = (event) => {
