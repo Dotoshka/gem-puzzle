@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import '../styles/styles.css';
+import DragManager from './DragManager';
 
 const swap = (arr, i1, j1, i2, j2) => {
   const temp = arr[i1][j1];
@@ -64,6 +65,8 @@ class Game {
     this.field.style.gridTemplateColumns = `repeat(${this.size}, 1fr)`;
     this.field.style.gridTemplateRows = `repeat(${this.size}, 1fr)`;
     document.body.prepend(this.field);
+    this.dragMan = new DragManager().init();
+    document.addEventListener('mouseup', this.getMoves);
     return this;
   }
 
@@ -73,6 +76,7 @@ class Game {
       for (let j = 0; j < this.size; j++) {
         chip = document.createElement('div');
         chip.classList.add('chip');
+        chip.classList.add('draggable');
         chip.innerText = this.chipsArray[i][j];
         chip.dataset.index = `${i}-${j}`;
         this.field.appendChild(chip);
@@ -87,7 +91,10 @@ class Game {
     }
     this.chips = document.querySelectorAll('.chip');
     this.chips.forEach((elem) => {
+      elem.style.width = window.getComputedStyle(chip).width;
+      elem.style.height = window.getComputedStyle(chip).height;
       elem.addEventListener('click', this.move);
+      // elem.addEventListener('mousedown', this.onMouseDown);
     });
   }
 
@@ -159,6 +166,12 @@ class Game {
       x: currChip.dataset.index[0],
       y: currChip.dataset.index[2],
     };
+    if (this.dragMan.lastIsDrop === true) {
+      this.dragMan.lastIsDrop = false;
+      this.emptyCoords = this.dragMan.dropCoords;
+    }
+    // console.log(currCoords);
+    // console.log(this.emptyCoords);
     const emptyChip = document.querySelector(
       `[data-index="${this.emptyCoords.x}-${this.emptyCoords.y}"]`,
     );
@@ -170,6 +183,8 @@ class Game {
       this.emptyCoords = currCoords;
       currChip.classList.add('empty');
       emptyChip.classList.remove('empty');
+      this.clicks++;
+      this.moves.innerText = `Moves ${this.clicks}`;
     };
     if (
       this.emptyCoords.x === currCoords.x
@@ -177,33 +192,37 @@ class Game {
     ) {
       const animation = this.animateMoving(currChip, 'toRight');
       animation.addEventListener('finish', change);
-      this.clicks++;
+      // this.clicks++;
     } else if (
       this.emptyCoords.x === currCoords.x
       && currCoords.y - this.emptyCoords.y === 1
     ) {
       const animation = this.animateMoving(currChip, 'toLeft');
       animation.addEventListener('finish', change);
-      this.clicks++;
+      // this.clicks++;
     } else if (
       this.emptyCoords.y === currCoords.y
       && currCoords.x - this.emptyCoords.x === 1
     ) {
       const animation = this.animateMoving(currChip, 'up');
       animation.addEventListener('finish', change);
-      this.clicks++;
+      // this.clicks++;
     } else if (
       this.emptyCoords.y === currCoords.y
       && this.emptyCoords.x - currCoords.x === 1
     ) {
       const animation = this.animateMoving(currChip, 'down');
       animation.addEventListener('finish', change);
-      this.clicks++;
-    } else {
-      return;
+      // this.clicks++;
     }
-    this.moves.innerText = `Moves ${this.clicks}`;
   };
+
+  getMoves = () => {
+    if (this.dragMan.isMoved) {
+      this.clicks++;
+      this.moves.innerText = `Moves ${this.clicks}`;
+    }
+  }
 
   animateMoving = (elem, direction) => {
     let keyframes = '';
@@ -238,6 +257,47 @@ class Game {
     }
     return elem.animate(keyframes, options);
   };
+
+  // onMouseDown = (event) => {
+  //   const currChip = event.target;
+  //   console.log(currChip);
+  //   if (!currChip) return;
+  //   const dupCurrChip = currChip.cloneNode();
+  //   dupCurrChip.classList.add('empty');
+  //   currChip.after(dupCurrChip);
+  //   // const shiftX = event.clientX - currChip.getBoundingClientRect().left;
+  //   // const shiftY = event.clientY - currChip.getBoundingClientRect().top;
+  //   // console.log(event.clientX, event.clientY);
+  //   // console.log(event.pageX, event.pageY);
+  //   // console.log(currChip.getBoundingClientRect(), currChip.getBoundingClientRect().top);
+  //   // console.log(shiftX, shiftY);
+  //   currChip.style.width = `${this.field.offsetWidth / this.size}px`;
+  //   currChip.style.height = `${this.field.offsetWidth / this.size}px`;
+  //   currChip.style.position = 'absolute';
+  //   currChip.style.zIndex = 1000;
+  //   // document.body.append(currChip);
+  //   const moveAt = (pageX, pageY) => {
+  //     // currChip.style.left = `${pageX - shiftX}px`;
+  //     // currChip.style.top = `${pageY - shiftY}px`;
+  //     currChip.style.left = `${pageX - currChip.offsetWidth / 2}px`;
+  //     currChip.style.top = `${pageY - currChip.offsetHeight / 2}px`;
+  //     console.log(currChip.offsetWidth);
+  //   };
+  //   moveAt(event.pageX, event.pageY);
+  //   const onMouseMove = () => moveAt(event.pageX, event.pageY);
+  //   document.addEventListener('mousemove', onMouseMove);
+  //   // // console.log('down');
+  //   currChip.onmouseup = () => {
+  //     console.log('yo');
+  //     document.removeEventListener('mousemove', this.onMouseMove);
+  //     currChip.onmouseup = null;
+  //     currChip.after(dupCurrChip);
+  //     dupCurrChip.remove();
+  //     // currChip.style.position = 'static';
+  //     // console.log('up');
+  //   };
+  //   currChip.ondragstart = () => false;
+  // }
 }
 
 const size = 4;
