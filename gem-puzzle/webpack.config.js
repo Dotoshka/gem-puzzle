@@ -50,7 +50,7 @@ const jsLoaders = () => {
 module.exports = {
   context: path.resolve(__dirname, 'src'),
   mode: 'development',
-  entry: ['@babel/polyfill', './js/script.js'],
+  entry: ['webpack-dev-server/client?http://localhost:4200/', '@babel/polyfill', './js/script.js'],
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
@@ -64,7 +64,6 @@ module.exports = {
   optimization: optimization(),
   devServer: {
     port: 4200,
-    hot: isDev,
   },
   devtool: isDev ? 'source-map' : '',
   plugins: [
