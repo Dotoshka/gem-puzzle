@@ -19,7 +19,7 @@ export default class DragManager {
   init() {
     document.onmousemove = this.onMouseMove;
     document.onmouseup = this.onMouseUp;
-    document.onmousedown = this.onMouseDown;
+    // document.onmousedown = this.onMouseDown;
     return this;
   }
 
@@ -161,6 +161,8 @@ export default class DragManager {
     //   this.dropElem.nextSibling,
     // );
     // this.field.insertBefore(this.dropElem, this.nextDragEl);
+    this.dragCoords = this.getMatrixCoords(this.dragObject.elem);
+    this.dropCoords = this.getMatrixCoords(this.dropElem);
     exchange(this.dragObject.elem, this.dropElem, this.field);
     // this.dropCoords = this.getMatrixCoords(this.dropElem);
     // this.lastIsDrop = true;
@@ -168,8 +170,8 @@ export default class DragManager {
   };
 
   getMatrixCoords = (elem) => ({
-    x: elem.dataset.index[0],
-    y: elem.dataset.index[2],
+    x: parseFloat(elem.dataset.index[0]),
+    y: parseFloat(elem.dataset.index[2]),
   });
 
   onDragCancel = () => {

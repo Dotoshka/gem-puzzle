@@ -51,10 +51,10 @@ class Game {
     this.timer = document.createElement('div');
     this.gamePanel.prepend(this.timer);
     this.timer.innerText = `Time ${addZero(this.minutes)} : ${addZero(this.seconds)}`;
-    const solveBtn = document.createElement('button');
-    solveBtn.innerText = 'Solve';
-    this.gamePanel.prepend(solveBtn);
-    solveBtn.addEventListener('click', this.solve);
+    this.solveBtn = document.createElement('button');
+    this.solveBtn.innerText = 'Solve';
+    this.gamePanel.prepend(this.solveBtn);
+    this.solveBtn.addEventListener('click', this.finishGame);
     // this.field = document.createElement('div');
     // this.field.classList.add('field');
     // this.field.style.gridTemplateColumns = `repeat(${this.size}, 1fr)`;
@@ -148,10 +148,11 @@ class Game {
   };
 
   startNewGame = () => {
+    this.solveBtn.removeAttribute('disabled');
     this.puzzle.clicks = 0;
     this.puzzle.updateMoveField();
     // for shuffle
-    this.logArray = [];
+    // this.logArray = [];
     // this.counter = 0;
     this.isLast = '';
     // hhh
@@ -166,9 +167,9 @@ class Game {
     this.puzzle.createElements(this.settings.gameMode);
     this.emptyCoords = this.puzzle.getEmptyCoords();
     console.log(this.emptyCoords);
-    this.logArray = this.puzzle.createLogArray(this.emptyCoords, this.puzzle.size, 3);
-    console.log(this.logArray);
-    this.puzzle.shuffle(this.logArray, 3, this.resumeGame);
+    this.puzzle.createLogArray(this.emptyCoords, this.puzzle.size, 5);
+    // console.log(this.puzzle.logArray);
+    this.puzzle.shuffle(this.puzzle.logArray, 5, this.resumeGame);
     // console.log(this.puzzle.isShuffling);
     // if (this.puzzle.isShuffling === false) {
     this.resumeGame();
@@ -208,6 +209,26 @@ class Game {
       currScreen.classList.remove('active');
       currScreen.classList.add('hidden');
     }
+  }
+
+  finishGame = () => {
+    // this.puzzle.logArray = this.optimizeArray(this.puzzle.logArray);
+    this.solveBtn.setAttribute('disabled', 'true');
+    this.pauseGame();
+    const iterations = this.puzzle.logArray.length - 1;
+    console.log(this.puzzle.logArray, iterations);
+    this.puzzle.solve(this.puzzle.logArray, iterations);
+  }
+
+  optimizeArray = (arr) => {
+    for (let i = 0; i < arr.length - 1; i++) {
+      if ((arr[i].dragElCoords === arr[i + 1].dropElCoords)
+      && (arr[i].dropElCoords === arr[i + 1].dragElCoords)) {
+        arr.splice(arr[i], 2);
+        i--;
+      }
+    }
+    return arr;
   }
 }
 

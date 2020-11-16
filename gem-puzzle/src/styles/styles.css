@@ -13,11 +13,7 @@
 }
 
 .field {
-  /* position: absolute; */
   display: grid;
-  /* top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); */
   width: 320px;
   height: 320px;
   background-color: black;
@@ -28,10 +24,8 @@
 
 .chip {
   background-color: rgb(255, 136, 0);
-  /* background: url('../assets/images/1.jpeg'); */
   background-repeat: no-repeat;
   background-size: 320px 320px;
-  /* background-position: 0px -100px; */
   text-align: center;
   width: 100%;
   height: 100%;

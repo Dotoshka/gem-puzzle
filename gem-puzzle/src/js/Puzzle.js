@@ -31,7 +31,11 @@ export default class Puzzle {
     this.updateMoveField();
     // Add drag-n-drop manager
     this.dragMan = new DragManager(this.field).init();
-    // document.addEventListener('mouseup', this.getMoves);
+    // document.onmousedown = this.onMouseDown;
+    document.addEventListener('mousedown', (event) => {
+      if (this.isShuffling) return;
+      this.dragMan.onMouseDown(event);
+    });
     return this;
   }
 
@@ -109,10 +113,10 @@ export default class Puzzle {
         this.shuffle(stepsArray, iterations);
       } else if (this.counter === iterations) {
         if (callback) callback();
-        console.log(callback);
+        // console.log(callback);
         // callback();
         this.isShuffling = false;
-        console.log(this.isShuffling);
+        // console.log(this.isShuffling);
         this.counter = 0;
       }
     });
@@ -128,6 +132,11 @@ export default class Puzzle {
     };
     this.emptyCoords = this.getEmptyCoords();
     const change = () => {
+      this.logArray.push({
+        dragElCoords: currCoords,
+        dropElCoords: this.emptyCoords,
+      });
+      console.log(this.logArray);
       exchange(currChip, this.emptyChip, this.field);
       this.clicks++;
       this.updateMoveField();
@@ -148,10 +157,14 @@ export default class Puzzle {
 
   getMoves = (cb) => {
     if (this.dragMan.isMoved) {
-      console.log('kuku');
       this.clicks++;
       this.updateMoveField();
       this.fieldState = this.getFieldState();
+      this.logArray.push({
+        dragElCoords: this.dragMan.dragCoords,
+        dropElCoords: this.dragMan.dropCoords,
+      });
+      console.log(this.logArray);
       cb();
       // this.isMoved = true;
     }
@@ -184,7 +197,7 @@ export default class Puzzle {
   };
 
   createLogArray = (curEmptyCoords, size, iterations) => {
-    const logArray = [];
+    this.logArray = [];
     let newEmptyCoords = curEmptyCoords;
     let count = 0;
     while (count < iterations) {
@@ -201,7 +214,7 @@ export default class Puzzle {
           if (upChipCoords.x >= 0 && this.isLast !== 'down') {
             count++;
             this.isLast = 'up';
-            logArray.push({
+            this.logArray.push({
               dragElCoords: upChipCoords,
               dropElCoords: emptyChipCoords,
             });
@@ -212,7 +225,7 @@ export default class Puzzle {
           if (rightChipCoords.y < size && this.isLast !== 'left') {
             count++;
             this.isLast = 'right';
-            logArray.push({
+            this.logArray.push({
               dragElCoords: rightChipCoords,
               dropElCoords: emptyChipCoords,
             });
@@ -223,7 +236,7 @@ export default class Puzzle {
           if (downChipCoords.x < size && this.isLast !== 'up') {
             count++;
             this.isLast = 'down';
-            logArray.push({
+            this.logArray.push({
               dragElCoords: downChipCoords,
               dropElCoords: emptyChipCoords,
             });
@@ -231,10 +244,10 @@ export default class Puzzle {
           }
           break; // to down
         case 3:
-          if (leftChipCoords.y > 0 && this.isLast !== 'right') {
+          if (leftChipCoords.y >= 0 && this.isLast !== 'right') {
             count++;
             this.isLast = 'left';
-            logArray.push({
+            this.logArray.push({
               dragElCoords: leftChipCoords,
               dropElCoords: emptyChipCoords,
             });
@@ -246,16 +259,16 @@ export default class Puzzle {
       }
       newEmptyCoords = emptyChipCoords;
     }
-    console.log(logArray);
-    return logArray;
+    console.log(this.logArray);
+    return this.logArray;
   };
 
-  solve = () => {
+  solve = (stepsArray, iterations) => {
     this.isShuffling = true;
-    console.log(this.logArray[this.counter]);
-    const { dragElCoords } = this.logArray[this.counter];
+    console.log(stepsArray[iterations]);
+    const { dropElCoords } = stepsArray[iterations];
     // const { dropElCoords } = this.logArray[this.counter - 1];
-    const dragEl = document.querySelector(`[data-index="${dragElCoords.x}-${dragElCoords.y}"]`);
+    const dragEl = document.querySelector(`[data-index="${dropElCoords.x}-${dropElCoords.y}"]`);
     // const dropEl = document.querySelector(`[data-index="${dropElCoords.x}-${dropElCoords.y}"]`);
     const dropEl = document.querySelector('.empty');
     console.log(dragEl);
@@ -263,12 +276,10 @@ export default class Puzzle {
     const animation = this.animateMoving(dragEl);
     animation.addEventListener('finish', () => {
       exchange(dragEl, dropEl, this.field);
-      this.counter--;
-      if (this.counter >= 0) {
-        this.solve();
-        console.log(this.counter);
-      } else if (this.counter < 0) {
-        this.isShuffling = false;
+      // this.counter--;
+      if (iterations > 0) {
+        this.solve(stepsArray, --iterations);
+        console.log(iterations);
       }
     });
   };
