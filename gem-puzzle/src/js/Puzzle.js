@@ -3,6 +3,7 @@
 import DragManager from './DragManager';
 import exchange from './utils/exchange';
 import bgImages from './images';
+import moveSound from '../assets/sounds/move_sound.wav';
 
 export default class Puzzle {
   constructor(size, container, movesContainer) {
@@ -32,6 +33,9 @@ export default class Puzzle {
     // Add drag-n-drop manager
     this.dragMan = new DragManager(this.field).init();
     // document.onmousedown = this.onMouseDown;
+    this.moveAudio = document.createElement('audio');
+    this.moveAudio.src = moveSound;
+    document.body.appendChild(this.moveAudio);
     document.addEventListener('mousedown', (event) => {
       if (this.isShuffling) return;
       this.dragMan.onMouseDown(event);
@@ -150,6 +154,7 @@ export default class Puzzle {
       || (this.emptyCoords.y === currCoords.y
       && Math.abs(currCoords.x - this.emptyCoords.x) === 1)
     ) {
+      this.playSound();
       const animation = this.animateMoving(currChip);
       animation.addEventListener('finish', change);
     }
@@ -157,6 +162,7 @@ export default class Puzzle {
 
   getMoves = (cb) => {
     if (this.dragMan.isMoved) {
+      this.playSound();
       this.clicks++;
       this.updateMoveField();
       this.fieldState = this.getFieldState();
@@ -290,5 +296,10 @@ export default class Puzzle {
       x: parseFloat(emptyChip.dataset.index[0]),
       y: parseFloat(emptyChip.dataset.index[2]),
     };
+  }
+
+  playSound = () => {
+    this.moveAudio.currentTime = 0;
+    this.moveAudio.play();
   }
 }

@@ -49,7 +49,7 @@ const jsLoaders = () => {
 
 module.exports = {
   context: path.resolve(__dirname, 'src'),
-  mode: 'production',
+  mode: 'development',
   entry: ['@babel/polyfill', './js/Game.js'],
   output: {
     filename: '[name].js',
@@ -57,7 +57,7 @@ module.exports = {
     // publicPath: '/dist/',
   },
   resolve: {
-    extensions: ['.js', '.png', '.jpg', '.jpeg'],
+    extensions: ['.js', '.png', '.jpg', '.jpeg', '.wav'],
     alias: {
       '@': path.resolve(__dirname, 'src'),
     },
@@ -93,7 +93,7 @@ module.exports = {
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
-        test: /\.(png|jpg|jpeg|svg)$/,
+        test: /\.(png|jpg|jpeg|svg|wav)$/,
         use: ['file-loader'],
       },
       {
