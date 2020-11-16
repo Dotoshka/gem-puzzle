@@ -50,13 +50,14 @@ const jsLoaders = () => {
 module.exports = {
   context: path.resolve(__dirname, 'src'),
   mode: 'development',
-  entry: ['webpack-dev-server/client?http://localhost:4200/', '@babel/polyfill', './js/script.js'],
+  entry: ['webpack-dev-server/client?http://localhost:4200/', '@babel/polyfill', './js/Game.js'],
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
+    publicPath: '/dist/',
   },
   resolve: {
-    extensions: ['.js', '.png'],
+    extensions: ['.js', '.png', '.jpg', '.jpeg'],
     alias: {
       '@': path.resolve(__dirname, 'src'),
     },
@@ -92,7 +93,7 @@ module.exports = {
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
-        test: /\.(png|jpg|svg)$/,
+        test: /\.(png|jpg|jpeg|svg)$/,
         use: ['file-loader'],
       },
       {
