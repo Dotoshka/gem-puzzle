@@ -1,8 +1,18 @@
-import getCoords from './getCoords';
+import getCoords from './utils/getCoords';
+import exchange from './utils/exchange';
 
+// const getEmptyCoords = () => {
+//   const emptyChip = document.querySelector('.empty');
+//   return {
+//     x: parseFloat(emptyChip.dataset.index[0]),
+//     y: parseFloat(emptyChip.dataset.index[2]),
+//   };
+// };
 export default class DragManager {
-  constructor() {
+  constructor(field) {
     this.dragObject = {};
+    // this.field = document.querySelector('.field');
+    this.field = field;
     // this.elem = '';
   }
 
@@ -136,14 +146,24 @@ export default class DragManager {
 
   onDragEnd = () => {
     this.dragObject.avatar.rollback();
-    this.dragObject.elem.classList.add('empty');
-    // this.dragObject.elem.classList.remove('draggable');
-    this.dropElem.classList.add('draggable');
-    this.dropElem.classList.remove('empty');
-    this.dropElem.innerHTML = this.dragObject.elem.innerHTML;
-    this.dragObject.elem.innerHTML = '';
-    this.dropCoords = this.getMatrixCoords(this.dragObject.elem);
-    this.lastIsDrop = true;
+    // this.dragObject.elem.classList.add('empty');
+    // this.dropElem.classList.remove('empty');
+    // this.dropElem.innerHTML = this.dragObject.elem.innerHTML;
+    // this.dragObject.elem.innerHTML = '';
+    // lala
+
+    // this.nextDragEl = this.dragObject.elem.nextSibling;
+    // const tempIndex = this.dragObject.elem.dataset.index;
+    // this.dragObject.elem.dataset.index = this.dropElem.dataset.index;
+    // this.dropElem.dataset.index = tempIndex;
+    // this.field.insertBefore(
+    //   this.dragObject.elem,
+    //   this.dropElem.nextSibling,
+    // );
+    // this.field.insertBefore(this.dropElem, this.nextDragEl);
+    exchange(this.dragObject.elem, this.dropElem, this.field);
+    // this.dropCoords = this.getMatrixCoords(this.dropElem);
+    // this.lastIsDrop = true;
     this.isMoved = true;
   };
 
