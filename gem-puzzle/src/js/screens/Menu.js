@@ -26,16 +26,5 @@ export default class Menu {
       button.innerText = buttons[i].name;
       this.menuContainer.appendChild(button);
     }
-    // return this;
   }
-
-  // open() {
-  //   this.menuContainer.classList.add('active');
-  //   this.menuContainer.classList.remove('hidden');
-  // }
-
-  // close() {
-  //   this.menuContainer.classList.add('hidden');
-  //   this.menuContainer.classList.remove('active');
-  // }
 }

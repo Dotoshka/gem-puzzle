@@ -2,9 +2,7 @@
 /* eslint-disable no-param-reassign */
 
 import '../styles/styles.css';
-// import bgImg from '../assets/images/1.jpg';
-// import DragManager from './DragManager';
-// import exchange from './exchange';
+import bgImg from '../assets/images/bg.jpg';
 import Menu from './screens/Menu';
 import Rules from './screens/Rules';
 import Settings from './screens/Settings';
@@ -17,23 +15,19 @@ function addZero(number) {
 
 class Game {
   constructor() {
-    // this.size = size;
-    // this.clicks = 0;
     this.seconds = 0;
     this.minutes = 0;
     this.isStart = false;
-    // this.field = createField();
-    // this.chips = createChips();
-    // this.isShuffling = false;
-    // this.chipsArray = createChipsArray(size);
-    // this.chipsArray = this.shuffle();
-    // console.log(this.chipsArray);
   }
 
   init() {
+    document.body.style.background = `url(${bgImg})`;
+    const title = document.createElement('h1');
+    title.innerText = 'FIFTEEN PUZZLE';
+    document.body.appendChild(title);
     this.gameBox = document.createElement('div');
     this.gameBox.classList.add('game-box');
-    document.body.prepend(this.gameBox);
+    document.body.appendChild(this.gameBox);
     // ---
     this.gameContainer = document.createElement('div');
     this.gameContainer.classList.add('game-container');
@@ -41,28 +35,12 @@ class Game {
     this.gameBox.appendChild(this.gameContainer);
     this.gameContainer.classList.add('hidden');
     // ---
-    // ---
-    // const menu = new Menu(this.gameBox).init();
-    // menu.open();
-    // ---
     this.gamePanel = document.createElement('div');
     this.gamePanel.classList.add('game-panel');
     this.gameContainer.prepend(this.gamePanel);
     this.timer = document.createElement('div');
     this.gamePanel.prepend(this.timer);
     this.timer.innerText = `Time ${addZero(this.minutes)} : ${addZero(this.seconds)}`;
-    this.solveBtn = document.createElement('button');
-    this.solveBtn.innerText = 'Solve';
-    this.gamePanel.prepend(this.solveBtn);
-    this.solveBtn.addEventListener('click', this.finishGame);
-    // this.field = document.createElement('div');
-    // this.field.classList.add('field');
-    // this.field.style.gridTemplateColumns = `repeat(${this.size}, 1fr)`;
-    // this.field.style.gridTemplateRows = `repeat(${this.size}, 1fr)`;
-    // this.gameBox.appendChild(this.field);
-    // this.dragMan = new DragManager().init();
-    // document.addEventListener('mouseup', this.getMoves);
-    // Init menu
     new Menu(this.gameBox).getScreen();
     new Rules(this.gameBox).getScreen();
     // Init Settings
@@ -75,32 +53,36 @@ class Game {
     // ---
     this.puzzle = new Puzzle(this.settings.fieldSize, this.gameContainer, this.gamePanel).init();
     // ---
-    // const resumeBtn = document.createElement('button');
-    // resumeBtn.innerText = 'Resume game';
-    // document.body.prepend(resumeBtn);
-    // resumeBtn.addEventListener('click', this.resumeGame);
+    this.gameBtns = document.createElement('div');
+    this.gameBtns.classList.add('game-btns');
+    this.gameContainer.appendChild(this.gameBtns);
     const pauseBtn = document.createElement('button');
     pauseBtn.innerText = 'Pause';
     pauseBtn.dataset.nextScreen = 'menu';
-    this.gamePanel.prepend(pauseBtn);
-    pauseBtn.addEventListener('click', this.pauseGame);
+    this.gameBtns.prepend(pauseBtn);
+    pauseBtn.addEventListener('click', () => {
+      this.pauseGame();
+      this.saveGame();
+    });
     pauseBtn.addEventListener('click', this.switchScreen);
-    // const newGameBtn = document.createElement('button');
-    // newGameBtn.innerText = 'New game';
-    // document.body.prepend(newGameBtn);
-    // newGameBtn.addEventListener('click', this.startNewGame);
+    this.solveBtn = document.createElement('button');
+    this.solveBtn.innerText = 'Give up';
+    this.gameBtns.appendChild(this.solveBtn);
+    this.solveBtn.addEventListener('click', this.finishGame);
     // ------
     document.querySelectorAll('.nav-btn').forEach((button) => {
       button.addEventListener('click', this.switchScreen);
+      if (button.dataset.nextScreen === 'continue-game'
+      || button.dataset.nextScreen === 'scores') {
+        button.setAttribute('disabled', 'true');
+      }
     });
     return this;
   }
 
   switchScreen = ({ target }) => {
-    console.log(target);
     const currScreen = target.closest('.active');
     const nextScreen = document.querySelector(`[data-screen=${target.dataset.nextScreen}]`);
-    console.log(currScreen, target.dataset.nextScreen, nextScreen);
     currScreen.classList.remove('active');
     currScreen.classList.add('hidden');
     nextScreen.classList.remove('hidden');
@@ -119,10 +101,6 @@ class Game {
     if (!this.isStart) {
       this.isStart = true;
       this.startTime();
-      // this.interval = setInterval(() => {
-      //   this.time++;
-      //   this.timer.innerText = `Time ${this.time}s`;
-      // }, 1000);
     }
   };
 
@@ -151,33 +129,16 @@ class Game {
     this.solveBtn.removeAttribute('disabled');
     this.puzzle.clicks = 0;
     this.puzzle.updateMoveField();
-    // for shuffle
-    // this.logArray = [];
-    // this.counter = 0;
     this.isLast = '';
-    // hhh
     this.stopGame();
-    // this.resumeGame();
     while (this.puzzle.field.firstChild) {
       this.puzzle.field.removeChild(this.puzzle.field.firstChild);
     }
-    // this.emptyCoords = { x: this.size - 1, y: this.size - 1 };
-    // this.chipsArray = createChipsArray(this.size);
-    // this.chipsArray = this.shuffle();
     this.puzzle.createElements(this.settings.gameMode);
     this.emptyCoords = this.puzzle.getEmptyCoords();
-    console.log(this.emptyCoords);
-    this.puzzle.createLogArray(this.emptyCoords, this.puzzle.size, 5);
-    // console.log(this.puzzle.logArray);
-    this.puzzle.shuffle(this.puzzle.logArray, 5, this.resumeGame);
-    // console.log(this.puzzle.isShuffling);
-    // if (this.puzzle.isShuffling === false) {
+    this.puzzle.createLogArray(this.emptyCoords, this.puzzle.size, 200);
+    this.puzzle.shuffle(this.puzzle.logArray, 200);
     this.resumeGame();
-    // }
-    // this.emptyCoords = this.logArray[this.logArray.length - 1].dragElCoords;
-    // this.clicks = 0;
-    // this.gameTime = 0;
-    // this.moves.innerText = `Moves ${this.clicks}`;
     document.addEventListener('mouseup', () => {
       this.puzzle.getMoves(this.isWin);
     });
@@ -185,7 +146,6 @@ class Game {
       elem.addEventListener('click', (event) => {
         this.puzzle.move(event, this.isWin);
       });
-      // elem.addEventListener('mouseup', this.isWin);
     });
   };
 
@@ -201,7 +161,6 @@ class Game {
       }
     }
     if (result) {
-      console.log('win');
       new Win(this.gameBox)
         .getScreen(this.minutes, this.seconds, this.puzzle.clicks, this.puzzle.size);
       this.pauseGame();
@@ -212,11 +171,9 @@ class Game {
   }
 
   finishGame = () => {
-    // this.puzzle.logArray = this.optimizeArray(this.puzzle.logArray);
     this.solveBtn.setAttribute('disabled', 'true');
     this.pauseGame();
     const iterations = this.puzzle.logArray.length - 1;
-    console.log(this.puzzle.logArray, iterations);
     this.puzzle.solve(this.puzzle.logArray, iterations);
   }
 
@@ -229,6 +186,18 @@ class Game {
       }
     }
     return arr;
+  }
+
+  saveGame() {
+    const value = {
+      field: this.puzzle.fieldState,
+      mins: this.minutes,
+      secs: this.seconds,
+      moves: this.puzzle.clicks,
+      size: this.puzzle.size,
+      bg: this.puzzle.bgImgIndex,
+    };
+    localStorage.setItem('saved-game', JSON.stringify(value));
   }
 }
 

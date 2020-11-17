@@ -1,29 +1,74 @@
 @import "~normalize.css";
 
+h1 {
+  font-family: 'Goldman', cursive;
+  font-size: 4rem;
+  color: white;
+  text-align: center;
+  text-shadow: 0px 3px 0px #b2a98f,
+  0px 14px 10px rgba(0,0,0,0.15),
+  0px 24px 2px rgba(0,0,0,0.1),
+  0px 34px 30px rgba(0,0,0,0.1);
+  line-height: 90%;
+}
+
+h2 {
+  font-family: 'Goldman', cursive;
+  font-size: 2.3rem;
+  color: white;
+  text-align: center;
+}
+
+h3 {
+  font-family: 'Goldman', cursive;
+  font-size: 1.8rem;
+  color: white;
+  text-align: center;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+body {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
 .game-box {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
   max-width: 350px;
   height: 500px;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.6);
   overflow: hidden;
+}
+
+.game-panel {
+  font-family: 'Montserrat', sans-serif;
+  color: white;
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
 }
 
 .field {
   display: grid;
   width: 320px;
   height: 320px;
-  background-color: black;
+  background-color: rgba(0, 0, 0, 0.6);
   gap: 3px;
   padding: 3px;
   box-sizing: border-box;
+  margin-bottom: 20px;
 }
 
 .chip {
-  background-color: rgb(255, 136, 0);
+  background-color: #8a1bb3;
+  color: white;
   background-repeat: no-repeat;
   background-size: 320px 320px;
   text-align: center;
@@ -48,6 +93,39 @@
 .menu-container {
   display: flex;
   flex-direction: column;
+  margin-top: 60px;
+}
+
+.settings-container,
+.rules-container, 
+.win-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.game-btns {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  margin-bottom: 10px;
+}
+
+.rules-container,
+.win-container {
+  box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
+  color: white;
+  font-size: 1.5rem;
+  padding: 0 15px;
+  text-align: justify;
+}
+
+.rules-container p,
+.win-container p {
+  margin-bottom: 100px;
 }
 
 .nav-btn:not(:last-child) {
@@ -56,4 +134,84 @@
 
 .hidden {
   display: none;
+}
+
+.nav-btn,
+.game-btns button {
+  color: #32D4E2;
+  background: transparent;
+  border: 3px solid #32D4E2;
+  position: relative;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: .3em;
+  font-family: 'Montserrat', sans-serif;
+  padding: 15px 30px;
+  transition: all 300ms ease;
+  box-shadow: 0px 4px 10px 2px rgba(black, 0.2);
+  cursor: pointer;
+}
+
+.nav-btn:before,
+.game-btns button:before {
+  position: absolute;
+  content: '';
+  width: 0%; height: 100%;
+  background: #32D4E2;
+  top: 0;  
+  left: auto; 
+  right: 0;
+  z-index: -1;
+  transition: all 300ms ease;
+}
+
+.nav-btn:hover,
+.game-btns button:hover {
+  color: white; 
+  box-shadow:none;
+}
+
+.nav-btn:hover:before,
+.game-btns button:hover:before {
+  position: absolute;
+  content: '';
+  width: 100%; 
+  height: 100%;
+  background: #32D4E2;
+  top: 0; 
+  left: 0; 
+  right: 0;
+  z-index: -1;
+}
+
+.no-numbers {
+  color: transparent;
+}
+
+select {
+  display: flex;
+  outline: 0;
+  box-shadow: none;
+  border: 1px solid white;
+  background: #1c3f42;
+  background-image: none;
+  width: 180px;
+  border-radius: .25em;
+  font-size: 20px;
+  line-height: 30px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.game-mode {
+  margin-bottom: 60px;
+}
+.game-btns button {
+  padding: 15px 15px;
+}
+
+@media (max-width: 630px) {
+  h1 {
+    margin: 5px auto;
+  }
 }

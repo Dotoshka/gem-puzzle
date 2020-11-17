@@ -49,8 +49,8 @@ const jsLoaders = () => {
 
 module.exports = {
   context: path.resolve(__dirname, 'src'),
-  mode: 'development',
-  entry: ['@babel/polyfill', './js/Game.js'],
+  mode: 'production',
+  entry: ['webpack-dev-server/client?http://localhost:4200/', '@babel/polyfill', './js/Game.js'],
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),

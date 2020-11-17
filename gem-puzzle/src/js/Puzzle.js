@@ -12,11 +12,8 @@ export default class Puzzle {
     this.size = size;
     this.isShuffling = false;
     this.clicks = 0;
-    // this.dragMan = new DragManager().init();
-    // document.addEventListener('mouseup', this.getMoves);
     this.counter = 0;
     this.fieldState = [];
-    // this.isMoved = false;
   }
 
   init() {
@@ -32,7 +29,6 @@ export default class Puzzle {
     this.updateMoveField();
     // Add drag-n-drop manager
     this.dragMan = new DragManager(this.field).init();
-    // document.onmousedown = this.onMouseDown;
     this.moveAudio = document.createElement('audio');
     this.moveAudio.src = moveSound;
     document.body.appendChild(this.moveAudio);
@@ -45,11 +41,7 @@ export default class Puzzle {
 
   createElements(gameMode) {
     // Create chips
-    // console.log(bgImages);
-    // const bgImgIndex = this.getBgIndex();
-    // console.log(bgImgIndex);
-    // this.clicks = 0;
-    const bgImgIndex = this.getBgIndex();
+    this.bgImgIndex = this.getBgIndex();
     let chip = '';
     for (let i = 0, k = 1; i < this.size; i++) {
       for (let j = 0; j < this.size; j++) {
@@ -62,9 +54,10 @@ export default class Puzzle {
         if (gameMode === 'images') {
           const bgPosition = `${-(j * (this.field.offsetWidth / this.size))}px 
           ${-(i * (this.field.offsetHeight / this.size))}px`;
-          chip.style.background = `url(${bgImages[bgImgIndex]})`;
+          chip.style.background = `url(${bgImages[this.bgImgIndex]})`;
           chip.style.backgroundSize = '320px 320px';
           chip.style.backgroundPosition = bgPosition;
+          chip.style.color = 'transparent';
         }
         // ---
         this.field.appendChild(chip);
@@ -78,52 +71,32 @@ export default class Puzzle {
     this.chips.forEach((elem) => {
       elem.style.width = window.getComputedStyle(chip).width;
       elem.style.height = window.getComputedStyle(chip).height;
-      // elem.addEventListener('click', this.move);
-      // elem.addEventListener('mousedown', this.onMouseDown);
     });
     this.emptyChip = document.querySelector('.empty');
     this.emptyCoords = this.getEmptyCoords();
   }
-
-  // getBgPosition(gameMode, i, j) {
-  //   let bgPosition = '';
-  //   if (gameMode === 'images') {
-  //     bgPosition = `${-(j * (this.field.offsetWidth / this.size))}px
-  //     ${-(i * (this.field.offsetHeight / this.size))}px`;
-  //   }
-  //   return bgPosition;
-  // }
 
   getBgIndex() {
     const index = Math.floor(Math.random() * Math.floor(bgImages.length));
     return index;
   }
 
-  shuffle = (stepsArray, iterations, callback) => {
-    // console.log(this.logArray);
-    // console.log(this.counter);
+  shuffle = (stepsArray, iterations) => {
     this.isShuffling = true;
     const { dragElCoords } = stepsArray[this.counter];
-    // const { dropElCoords } = stepsArray[this.counter];
     const dragEl = document.querySelector(`[data-index="${dragElCoords.x}-${dragElCoords.y}"]`);
-    // const dropEl = document.querySelector(`[data-index="${dropElCoords.x}-${dropElCoords.y}"]`);
     const dropEl = document.querySelector('.empty');
-    // console.log(dropEl);
-    const animation = this.animateMoving(dragEl);
-    animation.addEventListener('finish', () => {
-      exchange(dragEl, dropEl, this.field);
-      this.counter++;
-      if (this.counter < iterations) {
-        this.shuffle(stepsArray, iterations);
-      } else if (this.counter === iterations) {
-        if (callback) callback();
-        // console.log(callback);
-        // callback();
-        this.isShuffling = false;
-        // console.log(this.isShuffling);
-        this.counter = 0;
-      }
-    });
+    // const animation = this.animateMoving(dragEl);
+    // animation.addEventListener('finish', () => {
+    exchange(dragEl, dropEl, this.field);
+    this.counter++;
+    if (this.counter < iterations) {
+      this.shuffle(stepsArray, iterations);
+    } else if (this.counter === iterations) {
+      this.isShuffling = false;
+      this.counter = 0;
+    }
+    // });
   }
 
   move = (event, cb) => {
@@ -140,12 +113,10 @@ export default class Puzzle {
         dragElCoords: currCoords,
         dropElCoords: this.emptyCoords,
       });
-      console.log(this.logArray);
       exchange(currChip, this.emptyChip, this.field);
       this.clicks++;
       this.updateMoveField();
       this.fieldState = this.getFieldState();
-      // this.isMoved = true;
       cb();
     };
     if (
@@ -170,9 +141,7 @@ export default class Puzzle {
         dragElCoords: this.dragMan.dragCoords,
         dropElCoords: this.dragMan.dropCoords,
       });
-      console.log(this.logArray);
       cb();
-      // this.isMoved = true;
     }
   };
 
@@ -181,7 +150,6 @@ export default class Puzzle {
     this.field.childNodes.forEach((child) => {
       fieldState.push(parseFloat(child.innerText));
     });
-    console.log(fieldState);
     return fieldState;
   }
 
@@ -265,27 +233,19 @@ export default class Puzzle {
       }
       newEmptyCoords = emptyChipCoords;
     }
-    console.log(this.logArray);
     return this.logArray;
   };
 
   solve = (stepsArray, iterations) => {
     this.isShuffling = true;
-    console.log(stepsArray[iterations]);
     const { dropElCoords } = stepsArray[iterations];
-    // const { dropElCoords } = this.logArray[this.counter - 1];
     const dragEl = document.querySelector(`[data-index="${dropElCoords.x}-${dropElCoords.y}"]`);
-    // const dropEl = document.querySelector(`[data-index="${dropElCoords.x}-${dropElCoords.y}"]`);
     const dropEl = document.querySelector('.empty');
-    console.log(dragEl);
-    console.log(dropEl);
     const animation = this.animateMoving(dragEl);
     animation.addEventListener('finish', () => {
       exchange(dragEl, dropEl, this.field);
-      // this.counter--;
       if (iterations > 0) {
         this.solve(stepsArray, --iterations);
-        console.log(iterations);
       }
     });
   };

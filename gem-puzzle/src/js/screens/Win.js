@@ -1,3 +1,6 @@
+function addZero(number) {
+  return (parseInt(number, 10) < 10 ? '0' : '') + number;
+}
 export default class Win {
   constructor(container) {
     this.container = container;
@@ -15,7 +18,7 @@ export default class Win {
     this.winContainer.appendChild(this.screenTitle);
     // Create description
     const winDescription = document.createElement('p');
-    winDescription.innerText = `You won the game in ${moves} moves! You've spent ${minutes} min ${seconds} sec and you solved ${size}x${size} puzzle!`;
+    winDescription.innerText = `You won the game in ${moves} moves! You've spent ${addZero(minutes)} min ${addZero(seconds)} sec and you solved ${size}x${size} puzzle!`;
     this.winContainer.appendChild(winDescription);
     // Create Go back button
     const goBackBtn = document.createElement('button');
