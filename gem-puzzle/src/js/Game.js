@@ -140,11 +140,11 @@ class Game {
     this.puzzle.shuffle(this.puzzle.logArray, 200);
     this.resumeGame();
     document.addEventListener('mouseup', () => {
-      this.puzzle.getMoves(this.isWin);
+      this.puzzle.getMoves(this.isWin, this.settings.sound);
     });
     document.querySelectorAll('.chip').forEach((elem) => {
       elem.addEventListener('click', (event) => {
-        this.puzzle.move(event, this.isWin);
+        this.puzzle.move(event, this.isWin, this.settings.sound);
       });
     });
   };

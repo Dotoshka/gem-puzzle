@@ -203,9 +203,10 @@ select {
   cursor: pointer;
 }
 
-.game-mode {
-  margin-bottom: 60px;
+.sound {
+  margin-bottom: 30px;
 }
+
 .game-btns button {
   padding: 15px 15px;
 }

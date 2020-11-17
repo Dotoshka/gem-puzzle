@@ -13,6 +13,11 @@ const modes = [
   { mode: 'numbers', name: 'Numbers' },
 ];
 
+const sounds = [
+  { mode: 'on', name: 'On' },
+  { mode: 'off', name: 'Off' },
+];
+
 export default class Settings {
   constructor(container) {
     this.container = container;
@@ -32,6 +37,14 @@ export default class Settings {
 
   set gameMode(val) {
     localStorage.setItem('game-mode', val);
+  }
+
+  get sound() {
+    return localStorage.getItem('sound') || 'on';
+  }
+
+  set sound(val) {
+    localStorage.setItem('sound', val);
   }
 
   getScreen = () => {
@@ -79,6 +92,22 @@ export default class Settings {
     this.modeSelect.value = this.gameMode;
     this.modeSelect.onchange = this.changeMode;
     // Create sound options
+    this.soundSelectTitle = document.createElement('h3');
+    this.soundSelectTitle.innerText = 'Sound';
+    this.settingsContainer.appendChild(this.soundSelectTitle);
+    this.soundSelect = document.createElement('select');
+    this.soundSelect.classList.add('sound');
+    this.settingsContainer.appendChild(this.soundSelect);
+    for (let i = 0; i < sounds.length; i++) {
+      let option = '';
+      option = document.createElement('option');
+      option.classList.add('sound-value');
+      option.setAttribute('value', sounds[i].mode);
+      option.innerText = sounds[i].name;
+      this.soundSelect.appendChild(option);
+    }
+    this.soundSelect.value = this.sound;
+    this.soundSelect.onchange = this.switchSound;
     // Create Go back button
     const goBackBtn = document.createElement('button');
     goBackBtn.classList.add('nav-btn');
@@ -96,5 +125,10 @@ export default class Settings {
   changeMode = () => {
     this.gameMode = this.modeSelect.value;
     this.updateField();
+  }
+
+  switchSound = () => {
+    this.sound = this.soundSelect.value;
+    // this.updateField();
   }
 }

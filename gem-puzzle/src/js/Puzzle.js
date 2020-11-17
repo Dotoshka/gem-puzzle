@@ -99,7 +99,7 @@ export default class Puzzle {
     // });
   }
 
-  move = (event, cb) => {
+  move = (event, cb, soundMode) => {
     if (this.isShuffling) return;
     const currChip = event.target;
     if (!currChip) return;
@@ -125,15 +125,19 @@ export default class Puzzle {
       || (this.emptyCoords.y === currCoords.y
       && Math.abs(currCoords.x - this.emptyCoords.x) === 1)
     ) {
-      this.playSound();
+      if (soundMode === 'on') {
+        this.playSound();
+      }
       const animation = this.animateMoving(currChip);
       animation.addEventListener('finish', change);
     }
   };
 
-  getMoves = (cb) => {
+  getMoves = (cb, soundMode) => {
     if (this.dragMan.isMoved) {
-      this.playSound();
+      if (soundMode === 'on') {
+        this.playSound();
+      }
       this.clicks++;
       this.updateMoveField();
       this.fieldState = this.getFieldState();
