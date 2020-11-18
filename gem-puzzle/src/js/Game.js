@@ -8,6 +8,7 @@ import Rules from './screens/Rules';
 import Settings from './screens/Settings';
 import Puzzle from './Puzzle';
 import Win from './screens/Win';
+import Scores from './screens/Scores';
 
 function addZero(number) {
   return (parseInt(number, 10) < 10 ? '0' : '') + number;
@@ -44,22 +45,24 @@ class Game {
     new Menu(this.gameBox).getScreen();
     new Rules(this.gameBox).getScreen();
     // Init Settings
-    this.settings = new Settings(this.gameBox).getScreen();
     Settings.prototype.updateField = () => {
       this.puzzle.field.remove();
       this.puzzle.moves.remove();
       this.puzzle = new Puzzle(this.settings.fieldSize, this.gameContainer, this.gamePanel).init();
+      this.scores.getScreen(this.settings.fieldSize);
     };
-    // ---
+    this.settings = new Settings(this.gameBox).getScreen();
     this.puzzle = new Puzzle(this.settings.fieldSize, this.gameContainer, this.gamePanel).init();
+    this.scores = new Scores(this.gameBox);
+    this.scores.getScreen(this.settings.fieldSize);
     // ---
-    this.gameBtns = document.createElement('div');
-    this.gameBtns.classList.add('game-btns');
-    this.gameContainer.appendChild(this.gameBtns);
+    this.gameButtons = document.createElement('div');
+    this.gameButtons.classList.add('game-btns');
+    this.gameContainer.appendChild(this.gameButtons);
     const pauseBtn = document.createElement('button');
     pauseBtn.innerText = 'Pause';
     pauseBtn.dataset.nextScreen = 'menu';
-    this.gameBtns.prepend(pauseBtn);
+    this.gameButtons.prepend(pauseBtn);
     pauseBtn.addEventListener('click', () => {
       this.pauseGame();
       this.saveGame();
@@ -67,15 +70,17 @@ class Game {
     pauseBtn.addEventListener('click', this.switchScreen);
     this.solveBtn = document.createElement('button');
     this.solveBtn.innerText = 'Give up';
-    this.gameBtns.appendChild(this.solveBtn);
+    this.gameButtons.appendChild(this.solveBtn);
     this.solveBtn.addEventListener('click', this.finishGame);
     // ------
     document.querySelectorAll('.nav-btn').forEach((button) => {
       button.addEventListener('click', this.switchScreen);
-      if (button.dataset.nextScreen === 'continue-game'
-      || button.dataset.nextScreen === 'scores') {
+      if (button.dataset.nextScreen === 'continue-game') {
         button.setAttribute('disabled', 'true');
       }
+    });
+    document.addEventListener('mouseup', () => {
+      this.puzzle.getMoves(this.isWin, this.settings.sound);
     });
     return this;
   }
@@ -127,8 +132,6 @@ class Game {
 
   startNewGame = () => {
     this.solveBtn.removeAttribute('disabled');
-    this.puzzle.clicks = 0;
-    this.puzzle.updateMoveField();
     this.isLast = '';
     this.stopGame();
     while (this.puzzle.field.firstChild) {
@@ -136,12 +139,12 @@ class Game {
     }
     this.puzzle.createElements(this.settings.gameMode);
     this.emptyCoords = this.puzzle.getEmptyCoords();
-    this.puzzle.createLogArray(this.emptyCoords, this.puzzle.size, 200);
-    this.puzzle.shuffle(this.puzzle.logArray, 200);
+    const numberOfShuffles = this.puzzle.size * 50;
+    this.puzzle.createLogArray(this.emptyCoords, this.puzzle.size, numberOfShuffles);
+    this.puzzle.shuffle(this.puzzle.logArray, numberOfShuffles);
+    this.puzzle.clicks = 0;
+    this.puzzle.updateMoveField();
     this.resumeGame();
-    document.addEventListener('mouseup', () => {
-      this.puzzle.getMoves(this.isWin, this.settings.sound);
-    });
     document.querySelectorAll('.chip').forEach((elem) => {
       elem.addEventListener('click', (event) => {
         this.puzzle.move(event, this.isWin, this.settings.sound);
@@ -167,6 +170,11 @@ class Game {
       const currScreen = document.querySelector('.active');
       currScreen.classList.remove('active');
       currScreen.classList.add('hidden');
+      const scores = JSON.parse(localStorage.getItem('scores') || '[]');
+      const currDate = `${addZero(new Date().getDate())}.${addZero(new Date().getMonth() + 1)}.${new Date().getFullYear()}`;
+      scores.push([this.puzzle.size, currDate, this.puzzle.clicks, this.minutes, this.seconds]);
+      localStorage.setItem('scores', JSON.stringify(scores));
+      this.scores.getScreen(this.settings.fieldSize);
     }
   }
 
