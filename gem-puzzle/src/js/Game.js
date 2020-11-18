@@ -9,6 +9,7 @@ import Settings from './screens/Settings';
 import Puzzle from './Puzzle';
 import Win from './screens/Win';
 import Scores from './screens/Scores';
+import bgImages from './images';
 
 function addZero(number) {
   return (parseInt(number, 10) < 10 ? '0' : '') + number;
@@ -16,9 +17,9 @@ function addZero(number) {
 
 class Game {
   constructor() {
-    this.seconds = 0;
-    this.minutes = 0;
     this.isStart = false;
+    this.minutes = 0;
+    this.seconds = 0;
   }
 
   init() {
@@ -32,7 +33,7 @@ class Game {
     // ---
     this.gameContainer = document.createElement('div');
     this.gameContainer.classList.add('game-container');
-    this.gameContainer.dataset.screen = 'new-game';
+    this.gameContainer.dataset.screen = 'game';
     this.gameBox.appendChild(this.gameContainer);
     this.gameContainer.classList.add('hidden');
     // ---
@@ -41,17 +42,23 @@ class Game {
     this.gameContainer.prepend(this.gamePanel);
     this.timer = document.createElement('div');
     this.gamePanel.prepend(this.timer);
-    this.timer.innerText = `Time ${addZero(this.minutes)} : ${addZero(this.seconds)}`;
+    this.updateTimeField();
     new Menu(this.gameBox).getScreen();
+    this.continueButton = document.querySelector('[data-start=load]');
+    const saved = JSON.parse(localStorage.getItem('saved-game') || '[]');
+    if (saved.length === 0) this.continueButton.setAttribute('disabled', 'true');
     new Rules(this.gameBox).getScreen();
     // Init Settings
     Settings.prototype.updateField = () => {
+      this.continueButton.setAttribute('disabled', 'true');
+      localStorage.setItem('saved-game', []);
       this.puzzle.field.remove();
       this.puzzle.moves.remove();
       this.puzzle = new Puzzle(this.settings.fieldSize, this.gameContainer, this.gamePanel).init();
       this.scores.getScreen(this.settings.fieldSize);
     };
     this.settings = new Settings(this.gameBox).getScreen();
+    this.winState = this.getWinState();
     this.puzzle = new Puzzle(this.settings.fieldSize, this.gameContainer, this.gamePanel).init();
     this.scores = new Scores(this.gameBox);
     this.scores.getScreen(this.settings.fieldSize);
@@ -64,6 +71,7 @@ class Game {
     pauseBtn.dataset.nextScreen = 'menu';
     this.gameButtons.prepend(pauseBtn);
     pauseBtn.addEventListener('click', () => {
+      this.continueButton.removeAttribute('disabled');
       this.pauseGame();
       this.saveGame();
     });
@@ -75,14 +83,19 @@ class Game {
     // ------
     document.querySelectorAll('.nav-btn').forEach((button) => {
       button.addEventListener('click', this.switchScreen);
-      if (button.dataset.nextScreen === 'continue-game') {
-        button.setAttribute('disabled', 'true');
-      }
     });
     document.addEventListener('mouseup', () => {
       this.puzzle.getMoves(this.isWin, this.settings.sound);
     });
     return this;
+  }
+
+  getWinState = () => {
+    const winState = [];
+    for (let i = 0; i < this.settings.fieldSize ** 2; i++) {
+      winState.push(i + 1);
+    }
+    return winState;
   }
 
   switchScreen = ({ target }) => {
@@ -92,9 +105,18 @@ class Game {
     currScreen.classList.add('hidden');
     nextScreen.classList.remove('hidden');
     nextScreen.classList.add('active');
-    if (target.dataset.nextScreen === 'new-game') {
-      this.startNewGame();
+    if (target.dataset.start === 'new') {
+      this.stopGame();
+      this.startNewGame(this.settings.gameMode, 0, 0, 0, this.getBgIndex());
+    } else if (target.dataset.start === 'load') {
+      this.pauseGame();
+      this.loadGame();
     }
+  }
+
+  getBgIndex() {
+    const index = Math.floor(Math.random() * Math.floor(bgImages.length));
+    return index;
   }
 
   pauseGame = () => {
@@ -102,23 +124,23 @@ class Game {
     clearInterval(this.interval);
   };
 
-  resumeGame = () => {
+  resumeGame = (mins, secs) => {
     if (!this.isStart) {
       this.isStart = true;
-      this.startTime();
+      this.startTime(mins, secs);
     }
   };
 
-  startTime = () => {
-    this.seconds = 0;
-    this.minutes = 0;
+  startTime = (mins, secs) => {
+    this.minutes = mins;
+    this.seconds = secs;
     this.interval = setInterval(() => {
       this.seconds++;
       if (this.seconds === 60) {
         this.seconds = 0;
         this.minutes += 1;
       }
-      this.timer.innerText = `Time ${addZero(this.minutes)} : ${addZero(this.seconds)}`;
+      this.updateTimeField();
     }, 1000);
   }
 
@@ -127,24 +149,32 @@ class Game {
     clearInterval(this.interval);
     this.seconds = 0;
     this.minutes = 0;
-    this.timer.innerText = `Time ${addZero(this.minutes)} : ${addZero(this.seconds)}`;
   };
 
-  startNewGame = () => {
+  updateTimeField = () => {
+    this.timer.innerText = `Time ${addZero(this.minutes)} : ${addZero(this.seconds)}`;
+  }
+
+  startNewGame = (gameMode, clicks, mins, secs, bgIndex, savedLog) => {
+    this.updateTimeField();
+    this.resumeGame(mins, secs);
+    this.bgIndex = bgIndex;
     this.solveBtn.removeAttribute('disabled');
-    this.isLast = '';
-    this.stopGame();
     while (this.puzzle.field.firstChild) {
       this.puzzle.field.removeChild(this.puzzle.field.firstChild);
     }
-    this.puzzle.createElements(this.settings.gameMode);
+    this.puzzle.createElements(gameMode, bgIndex, bgImages);
     this.emptyCoords = this.puzzle.getEmptyCoords();
-    const numberOfShuffles = this.puzzle.size * 50;
-    this.puzzle.createLogArray(this.emptyCoords, this.puzzle.size, numberOfShuffles);
-    this.puzzle.shuffle(this.puzzle.logArray, numberOfShuffles);
-    this.puzzle.clicks = 0;
+    if (savedLog) {
+      this.puzzle.logArray = savedLog;
+      this.puzzle.shuffle(this.puzzle.logArray, this.puzzle.logArray.length);
+    } else {
+      const numberOfShuffles = this.puzzle.size * 50;
+      this.puzzle.createLogArray(this.emptyCoords, this.puzzle.size, numberOfShuffles);
+      this.puzzle.shuffle(this.puzzle.logArray, numberOfShuffles);
+    }
+    this.puzzle.clicks = clicks;
     this.puzzle.updateMoveField();
-    this.resumeGame();
     document.querySelectorAll('.chip').forEach((elem) => {
       elem.addEventListener('click', (event) => {
         this.puzzle.move(event, this.isWin, this.settings.sound);
@@ -153,17 +183,15 @@ class Game {
   };
 
   isWin = () => {
-    const winState = [];
-    for (let i = 0; i < this.puzzle.size ** 2; i++) {
-      winState.push(i + 1);
-    }
     let result = true;
-    for (let i = 0; i < winState.length; i++) {
-      if (this.puzzle.fieldState[i] !== winState[i]) {
+    for (let i = 0; i < this.winState.length; i++) {
+      if (this.puzzle.fieldState[i] !== this.winState[i]) {
         result = false;
       }
     }
     if (result) {
+      this.continueButton.setAttribute('disabled', 'true');
+      localStorage.setItem('saved-game', []);
       new Win(this.gameBox)
         .getScreen(this.minutes, this.seconds, this.puzzle.clicks, this.puzzle.size);
       this.pauseGame();
@@ -203,9 +231,19 @@ class Game {
       secs: this.seconds,
       moves: this.puzzle.clicks,
       size: this.puzzle.size,
-      bg: this.puzzle.bgImgIndex,
+      bgIndex: this.bgIndex,
+      mode: this.settings.gameMode,
+      log: this.puzzle.logArray,
     };
     localStorage.setItem('saved-game', JSON.stringify(value));
+  }
+
+  loadGame = () => {
+    const saved = JSON.parse(localStorage.getItem('saved-game') || '[]');
+    if (!saved || parseFloat(saved.size) !== parseFloat(this.settings.fieldSize)) return;
+    this.minutes = saved.mins;
+    this.seconds = saved.secs;
+    this.startNewGame(saved.mode, saved.moves, saved.mins, saved.secs, saved.bgIndex, saved.log);
   }
 }
 

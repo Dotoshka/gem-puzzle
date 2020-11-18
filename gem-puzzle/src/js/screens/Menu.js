@@ -1,6 +1,6 @@
 const buttons = [
-  { name: 'New game', nextScreen: 'new-game' },
-  { name: 'Continue', nextScreen: 'continue-game' },
+  { name: 'New game', nextScreen: 'game' },
+  { name: 'Continue', nextScreen: 'game' },
   { name: 'Best scores', nextScreen: 'scores' },
   { name: 'Rules', nextScreen: 'rules' },
   { name: 'Settings', nextScreen: 'settings' },
@@ -24,6 +24,11 @@ export default class Menu {
       button.classList.add('nav-btn');
       button.dataset.nextScreen = buttons[i].nextScreen;
       button.innerText = buttons[i].name;
+      if (buttons[i].name === 'New game') {
+        button.dataset.start = 'new';
+      } else if (buttons[i].name === 'Continue') {
+        button.dataset.start = 'load';
+      }
       this.menuContainer.appendChild(button);
     }
   }

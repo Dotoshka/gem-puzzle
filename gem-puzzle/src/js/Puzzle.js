@@ -2,7 +2,6 @@
 /* eslint-disable no-param-reassign */
 import DragManager from './DragManager';
 import exchange from './utils/exchange';
-import bgImages from './images';
 import moveSound from '../assets/sounds/move_sound.wav';
 
 export default class Puzzle {
@@ -13,7 +12,6 @@ export default class Puzzle {
     this.isShuffling = false;
     this.clicks = 0;
     this.counter = 0;
-    this.fieldState = [];
   }
 
   init() {
@@ -39,9 +37,8 @@ export default class Puzzle {
     return this;
   }
 
-  createElements(gameMode) {
+  createElements(gameMode, bgIndex, images) {
     // Create chips
-    this.bgImgIndex = this.getBgIndex();
     let chip = '';
     for (let i = 0, k = 1; i < this.size; i++) {
       for (let j = 0; j < this.size; j++) {
@@ -54,7 +51,7 @@ export default class Puzzle {
         if (gameMode === 'images') {
           const bgPosition = `${-(j * (this.field.offsetWidth / this.size))}px 
           ${-(i * (this.field.offsetHeight / this.size))}px`;
-          chip.style.background = `url(${bgImages[this.bgImgIndex]})`;
+          chip.style.background = `url(${images[bgIndex]})`;
           chip.style.backgroundSize = '320px 320px';
           chip.style.backgroundPosition = bgPosition;
           chip.style.color = 'transparent';
@@ -76,11 +73,6 @@ export default class Puzzle {
     this.emptyCoords = this.getEmptyCoords();
   }
 
-  getBgIndex() {
-    const index = Math.floor(Math.random() * Math.floor(bgImages.length));
-    return index;
-  }
-
   shuffle = (stepsArray, iterations) => {
     this.isShuffling = true;
     const { dragElCoords } = stepsArray[this.counter];
@@ -96,7 +88,7 @@ export default class Puzzle {
       this.isShuffling = false;
       this.counter = 0;
     }
-    // });
+    this.fieldState = this.getFieldState();
   }
 
   move = (event, cb, soundMode) => {
@@ -162,7 +154,7 @@ export default class Puzzle {
   }
 
   animateMoving = (activeEl) => {
-    const options = 50;
+    const options = 100;
     const activeElPosition = activeEl.getBoundingClientRect();
     const emptyElPosition = this.emptyChip.getBoundingClientRect();
     const distanceX = emptyElPosition.left - activeElPosition.left;
@@ -175,6 +167,7 @@ export default class Puzzle {
   };
 
   createLogArray = (curEmptyCoords, size, iterations) => {
+    this.isLast = '';
     this.logArray = [];
     let newEmptyCoords = curEmptyCoords;
     let count = 0;

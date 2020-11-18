@@ -14,8 +14,11 @@ export default class Rules {
     this.screenTitle.innerText = 'Rules';
     this.rulesContainer.appendChild(this.screenTitle);
     // Create description
-    const rulesDescription = document.createElement('p');
+    let rulesDescription = document.createElement('p');
     rulesDescription.innerText = 'The object of the puzzle is to place the tiles in order by making sliding moves that use the empty space.';
+    this.rulesContainer.appendChild(rulesDescription);
+    rulesDescription = document.createElement('p');
+    rulesDescription.innerText = 'The current game for the selected field size will be saved automatically when you press the PAUSE button';
     this.rulesContainer.appendChild(rulesDescription);
     // Create Go back button
     const goBackBtn = document.createElement('button');
