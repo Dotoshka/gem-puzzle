@@ -38,7 +38,7 @@ export default class Rules {
     const currScores = this.scores
       .filter((elem) => elem[0] === size)
       .sort((a, b) => a[2] - b[2])
-      .slice(0, 11);
+      .slice(0, 10);
     if (currScores.length === 0) {
       this.noResults.style.display = 'block';
     } else {
@@ -61,7 +61,7 @@ export default class Rules {
       let tdDate = '';
       let tdMoves = '';
       let tdTime = '';
-      for (let i = 0; i < currScores.length - 1; i++) {
+      for (let i = 0; i < currScores.length; i++) {
         tr = document.createElement('tr');
         tdPosition = document.createElement('td');
         tdPosition.innerText = `${i + 1}`;

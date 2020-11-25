@@ -56,6 +56,7 @@ class Game {
       this.puzzle.moves.remove();
       this.puzzle = new Puzzle(this.settings.fieldSize, this.gameContainer, this.gamePanel).init();
       this.scores.getScreen(this.settings.fieldSize);
+      this.winState = this.getWinState();
     };
     this.settings = new Settings(this.gameBox).getScreen();
     this.winState = this.getWinState();
